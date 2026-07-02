@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env*.local
+uploads/
+chroma_db/
+__pycache__/
+*.pyc
+venv/
+.env
+*.db
