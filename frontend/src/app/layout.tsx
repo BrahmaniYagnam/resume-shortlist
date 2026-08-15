@@ -4,7 +4,7 @@ import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "AI Career Copilot — Intelligent Placement Assistant",
+  title: "Resume Shortlist — Intelligent Placement Assistant",
   description: "AI-powered career platform for college students — resume analysis, interview prep, skill gaps, and voice coaching.",
 };
 

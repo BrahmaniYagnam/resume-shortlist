@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, FileSearch, Mic, Target, ArrowRight, CheckCircle } from "lucide-react";
+import { Sparkles, FileSearch, Mic, Target, ArrowRight, CheckCircle, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const features = [
   { icon: FileSearch, title: "AI Resume Analyzer", desc: "Upload PDF/DOC resumes and get ATS scores, skill analysis, and improvement tips." },
   { icon: Mic, title: "Voice Career Coach", desc: "Talk to your AI coach for personalized career advice and 30-day action plans." },
   { icon: Target, title: "Skill Gap Prediction", desc: "Know your job readiness across DSA, Frontend, Backend, and System Design." },
+  { icon: Cpu, title: "GPU-Accelerated AI Compute", desc: "Fast, scalable AI inference for resume analysis, interview prep, and voice tasks." },
 ];
 
 const highlights = [
@@ -16,6 +17,7 @@ const highlights = [
   "AI interview preparation",
   "GitHub profile analysis",
   "Application tracker with AI suggestions",
+  "GPU-ready AI processing for fast analysis",
   "College placement dashboard",
 ];
 
@@ -27,7 +29,7 @@ export default function LandingPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">Career Copilot</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">Resume Shortlist</span>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login"><Button variant="ghost">Sign In</Button></Link>
@@ -41,10 +43,10 @@ export default function LandingPage() {
             AI-Powered Placement Assistant
           </span>
           <h1 className="mt-6 text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-6xl">
-            Your Intelligent<br /><span className="gradient-text">Career Copilot</span>
+            Your GPU-Powered<br /><span className="gradient-text">Resume Shortlist</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
-            Improve resumes, prepare for interviews, identify skill gaps, and receive personalized AI career guidance — all in one platform built for college students.
+            Improve resumes, prepare for interviews, identify skill gaps, and receive personalized AI career guidance with GPU-accelerated compute for faster results.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
             <Link href="/signup">
@@ -56,7 +58,7 @@ export default function LandingPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {features.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="glass-card animate-slide-up p-8">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50">
@@ -84,7 +86,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-gray-200 py-8 text-center text-sm text-gray-500 dark:border-gray-800">
-        AI Career Copilot — Intelligent Placement Assistant &copy; 2026
+        Resume Shortlist — Intelligent Placement Assistant &copy; 2026
       </footer>
     </div>
   );

@@ -16,6 +16,8 @@ export default function ProfilePage() {
   });
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
 
   useEffect(() => {
     if (!token) return;
@@ -48,13 +50,42 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSyncGitHub = async () => {
+    if (!token || !form.github_username.trim()) return;
+    setSyncLoading(true);
+    setSyncMessage("");
+    try {
+      const data = await api.analyzeGithub(token, form.github_username) as {
+        analysis?: {
+          languages?: Record<string, number>;
+        };
+      };
+      const languages = data?.analysis?.languages || {};
+      const newSkills = Object.keys(languages);
+      if (newSkills.length > 0) {
+        const existing = form.skills.split(",").map((s) => s.trim()).filter(Boolean);
+        const merged = Array.from(new Set([...existing, ...newSkills]));
+        setForm((prev) => ({
+          ...prev,
+          skills: merged.join(", "),
+        }));
+        setSyncMessage(`Successfully synced ${newSkills.length} skills: ${newSkills.join(", ")}`);
+      } else {
+        setSyncMessage("No repository languages found to sync.");
+      }
+    } catch (err: any) {
+      setSyncMessage(err.message || "Failed to sync from GitHub.");
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   const fields = [
     { key: "name", label: "Full Name", type: "text" },
     { key: "college", label: "College", type: "text" },
     { key: "branch", label: "Branch", type: "text" },
     { key: "year", label: "Year", type: "text", placeholder: "e.g., 3rd Year, Final Year" },
     { key: "target_role", label: "Target Role", type: "text", placeholder: "e.g., Software Engineer" },
-    { key: "github_username", label: "GitHub Username", type: "text" },
   ];
 
   return (
@@ -72,6 +103,18 @@ export default function ProfilePage() {
                 className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900" />
             </div>
           ))}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">GitHub Username</label>
+            <div className="flex gap-2">
+              <input type="text" value={form.github_username}
+                onChange={(e) => setForm({ ...form, github_username: e.target.value })}
+                className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm dark:border-gray-700 dark:bg-gray-900" />
+              <Button type="button" variant="secondary" onClick={handleSyncGitHub} disabled={!form.github_username.trim() || syncLoading}>
+                {syncLoading ? "Syncing..." : "Sync Skills"}
+              </Button>
+            </div>
+            {syncMessage && <p className="mt-1.5 text-xs text-blue-600 dark:text-blue-400">{syncMessage}</p>}
+          </div>
           <div className="md:col-span-2">
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Skills (comma-separated)</label>
             <input value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })}

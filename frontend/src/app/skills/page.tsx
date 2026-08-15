@@ -39,8 +39,11 @@ export default function SkillsPage() {
       <Header title="Skill Gap Prediction" subtitle="AI-powered job readiness assessment and learning roadmap" />
 
       <Card className="mb-8 text-center">
-        <p className="mb-4 text-gray-600 dark:text-gray-400">
+        <p className="mb-2 text-gray-600 dark:text-gray-400">
           Get a comprehensive analysis of your placement readiness across key skill areas.
+        </p>
+        <p className="mb-4 text-xs text-blue-600 dark:text-blue-400 font-medium">
+          💡 Tip: For the most accurate assessment, make sure you have uploaded your resume in the Resume Analyzer and completed your target role details in your Profile section first.
         </p>
         <Button onClick={handleAssess} loading={loading} size="lg">Run Skill Assessment</Button>
       </Card>

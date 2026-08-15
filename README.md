@@ -1,6 +1,17 @@
-# AI Career Copilot — Intelligent Placement Assistant
+# Resume Shortlist — Intelligent Placement Assistant
 
 An AI-powered full-stack career platform for college students. Helps improve resumes, prepare for interviews, identify skill gaps, and receive personalized AI career guidance through voice interaction.
+
+## Deployment
+
+You can deploy the project to the cloud instantly using the following one-click deployment links:
+
+### 1. Deploy Frontend (Vercel)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/BrahmaniYagnam/resume-shortlist&root-directory=frontend&env=NEXT_PUBLIC_API_URL)
+
+### 2. Deploy Backend (Render)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/BrahmaniYagnam/resume-shortlist)
+
 
 ## Features
 

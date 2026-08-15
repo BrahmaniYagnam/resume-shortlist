@@ -93,8 +93,11 @@ export const api = {
     request("/interview/generate", { method: "POST", body: JSON.stringify(data) }, token),
   evaluateAnswer: (token: string, data: { session_id: number; question_index: number; answer: string }) =>
     request("/interview/evaluate", { method: "POST", body: JSON.stringify(data) }, token),
+  moreInterviewQuestions: (token: string, data: { session_id: number }) =>
+    request("/interview/more", { method: "POST", body: JSON.stringify(data) }, token),
   listInterviewSessions: (token: string) =>
     request("/interview/sessions", {}, token),
+
 
   voiceChat: (token: string, data: { message: string; conversation_id?: number }) =>
     request("/voice/chat", { method: "POST", body: JSON.stringify(data) }, token),

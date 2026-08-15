@@ -40,8 +40,8 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <div>
-            <p className="text-sm font-bold text-gray-900 dark:text-white">Career Copilot</p>
-            <p className="text-[10px] text-gray-500">AI Placement Assistant</p>
+            <p className="text-sm font-bold text-gray-900 dark:text-white">Resume Shortlist</p>
+            <p className="text-[10px] text-gray-500">AI Resume Shortlist</p>
           </div>
         )}
       </div>

@@ -37,7 +37,7 @@ export default function LoginPage() {
             <Sparkles className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
-          <p className="mt-1 text-sm text-gray-500">Sign in to your Career Copilot account</p>
+          <p className="mt-1 text-sm text-gray-500">Sign in to your Resume Shortlist account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="glass-card space-y-4 p-8">
