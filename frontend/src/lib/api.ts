@@ -89,14 +89,18 @@ export const api = {
   matchJob: (token: string, data: { job_description: string; resume_id?: number }) =>
     request("/resume/match", { method: "POST", body: JSON.stringify(data) }, token),
 
-  generateInterview: (token: string, data: { target_role?: string; resume_id?: number }) =>
+  generateInterview: (token: string, data: { target_role?: string; resume_id?: number; interview_type?: string; difficulty?: string }) =>
     request("/interview/generate", { method: "POST", body: JSON.stringify(data) }, token),
   evaluateAnswer: (token: string, data: { session_id: number; question_index: number; answer: string }) =>
-    request("/interview/evaluate", { method: "POST", body: JSON.stringify(data) }, token),
+    request<{ feedback: Record<string, any>; next_question?: Record<string, any>; completed: boolean }>("/interview/evaluate", { method: "POST", body: JSON.stringify(data) }, token),
   moreInterviewQuestions: (token: string, data: { session_id: number }) =>
     request("/interview/more", { method: "POST", body: JSON.stringify(data) }, token),
   listInterviewSessions: (token: string) =>
-    request("/interview/sessions", {}, token),
+    request<Array<{ id: number; target_role: string; interview_type: string; difficulty: string; score: number | null; duration_seconds: number; question_count: number; created_at: string }>>("/interview/sessions", {}, token),
+  getInterviewSession: (token: string, sessionId: number) =>
+    request<Record<string, any>>(`/interview/session/${sessionId}`, {}, token),
+  finishInterview: (token: string, data: { session_id: number; duration_seconds: number }) =>
+    request<Record<string, any>>("/interview/finish", { method: "POST", body: JSON.stringify(data) }, token),
 
 
   voiceChat: (token: string, data: { message: string; conversation_id?: number }) =>

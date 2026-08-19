@@ -93,6 +93,41 @@ def _mock_ai_response(prompt: str) -> str:
     """Fallback when no API key is configured — enables demo without Gemini/OpenAI."""
     prompt_lower = prompt.lower()
 
+    if "generate the next single interview question" in prompt_lower:
+        return json.dumps({
+            "question": "Regarding database design, how would you design indexes to optimize search queries, and what are the performance impacts of over-indexing?",
+            "category": "technical",
+            "subcategory": "Databases"
+        })
+
+    if "generate a comprehensive performance report" in prompt_lower:
+        return json.dumps({
+            "overall_score": 81,
+            "categories": {
+                "technical_knowledge": 78,
+                "problem_solving": 82,
+                "communication": 75,
+                "confidence": 80,
+                "project_knowledge": 88,
+                "answer_quality": 81
+            },
+            "strengths": [
+                "Good understanding of fundamental technical concepts",
+                "Clear explanation of project goals and implementation",
+                "Methodical approach to problem-solving questions"
+            ],
+            "improvements": [
+                "Elaborate more on design tradeoffs rather than just the final solution",
+                "Try to structure behavioral answers using the STAR method",
+                "Provide more database normalization and indexing detail"
+            ],
+            "practice": [
+                "Practice standard Data Structures and Algorithms (DSA) questions",
+                "Practice Database Management Systems (DBMS) queries and concepts",
+                "Practice mock Behavioral interviews to build structural responses"
+            ]
+        })
+
     if "build an optimized" in prompt_lower:
         # Try to parse the input data from the prompt to make Resume Builder work dynamically
         try:
@@ -637,6 +672,287 @@ Answer: {answer}"""
         print(f"API Interview Evaluation failed: {e}. Falling back to mock response.")
         response = _mock_ai_response(prompt)
         return parse_json_response(response)
+
+
+
+async def generate_dynamic_question(
+    target_role: str,
+    interview_type: str,
+    difficulty: str,
+    resume_text: str,
+    history: list
+) -> dict:
+    if not settings.gemini_api_key and not settings.openai_api_key:
+        return generate_dynamic_question_heuristically(target_role, interview_type, difficulty, resume_text, history)
+
+    history_str = ""
+    for idx, h in enumerate(history):
+        history_str += f"\nRound {idx + 1}:\nQuestion: {h.get('question', '')}\nAnswer Given: {h.get('answer', '')}\nEvaluation Score: {h.get('score', 0) if isinstance(h, dict) else 0}/10\nEvaluation Feedback: {h.get('feedback', '') if isinstance(h, dict) else ''}\n"
+
+    prompt = f"""You are conducting an interactive interview. Generate the NEXT single interview question.
+Ensure it is dynamic, natural, and directly follows up on the previous answer if applicable.
+
+Interview Setup:
+- Target Role: {target_role}
+- Interview Type: {interview_type} (technical, hr, behavioral, mixed)
+- Current Difficulty: {difficulty} (easy, medium, hard)
+- Resume Context: {resume_text[:2000]}
+
+Conversation History:
+{history_str}
+
+Requirements:
+1. If the candidate's last answer was short or highlighted specific tools/frameworks/projects (e.g. React, Docker, BERT), ask a deep follow-up question (e.g., "Why did you choose BERT over TF-IDF?", "How does the virtual DOM work in React?", "How did you scale that database?").
+2. Adjust the depth based on Difficulty:
+   - Easy: Focus on basic definitions, syntax, or simple situational questions.
+   - Medium: Focus on project explanations, standard algorithms, and core design principles.
+   - Hard: Focus on performance optimization, architectural trade-offs, security, and complex system designs.
+3. Keep the question brief and conversational, as if spoken in a real call.
+4. Avoid repeating previous questions or concepts.
+5. Return ONLY a valid JSON response with the following format:
+{{
+  "question": "The question text to ask next",
+  "category": "technical | hr | project",
+  "subcategory": "e.g., React, System Design, STAR Method, Introduction"
+}}"""
+
+    try:
+        response = await generate_ai_content(prompt, "You are a professional, sharp AI interviewer.")
+        return parse_json_response(response)
+    except Exception as e:
+        print(f"Dynamic question generation failed: {e}. Using fallback.")
+        return generate_dynamic_question_heuristically(target_role, interview_type, difficulty, resume_text, history)
+
+
+def generate_dynamic_question_heuristically(
+    target_role: str,
+    interview_type: str,
+    difficulty: str,
+    resume_text: str,
+    history: list
+) -> dict:
+    import random
+    parsed = parse_resume_heuristically(resume_text)
+    skills = parsed.get("skills", ["Python", "JavaScript"])
+    proj_name = parsed.get('projects', [{}])[0].get('name', 'Resume Shortlist')
+
+    if history:
+        last_item = history[-1]
+        last_answer = last_item.get("answer", "").lower() if isinstance(last_item, dict) else ""
+        
+        if "react" in last_answer:
+            return {
+                "question": "You mentioned React. How do you handle component state optimization and when would you use useMemo or useCallback?",
+                "category": "technical",
+                "subcategory": "React"
+            }
+        if "python" in last_answer:
+            return {
+                "question": "You mentioned using Python. How do you manage dependency environments, and what are the key differences between multiprocessing and multithreading in Python?",
+                "category": "technical",
+                "subcategory": "Python"
+            }
+        if "sql" in last_answer or "database" in last_answer:
+            return {
+                "question": "Regarding database design, how would you design indexes to optimize search queries, and what are the performance impacts of over-indexing?",
+                "category": "technical",
+                "subcategory": "Databases"
+            }
+        if "bert" in last_answer or "model" in last_answer or "ai" in last_answer:
+            return {
+                "question": "You mentioned machine learning. How do you deal with overfitting in model training, and what metrics do you track to evaluate model performance?",
+                "category": "technical",
+                "subcategory": "Machine Learning"
+            }
+        if "docker" in last_answer or "kubernetes" in last_answer or "aws" in last_answer:
+            return {
+                "question": "Regarding deployment, how do you manage microservice communications and ensure secure cloud resource access?",
+                "category": "technical",
+                "subcategory": "DevOps"
+            }
+        
+    tech_questions = [
+        {"category": "technical", "subcategory": "DSA", "question": "Explain how a Hash Map works under the hood. What is the time complexity of its operations, and how are collisions handled?"},
+        {"category": "technical", "subcategory": "System Design", "question": "If we were scaling a real-time chat application, how would you design the architecture to support millions of concurrent users?"},
+        {"category": "technical", "subcategory": "CS Fundamentals", "question": "What is the difference between a process and a thread? How do they share memory, and what is a race condition?"},
+        {"category": "technical", "subcategory": "Security", "question": "What is the difference between SQL injection and Cross-Site Scripting (XSS)? How can developers prevent them?"}
+    ]
+    
+    behavioral_questions = [
+        {"category": "hr", "subcategory": "Behavioral", "question": "Tell me about a time you had to deal with a conflict in a team setting. How did you handle it and what was the result?"},
+        {"category": "hr", "subcategory": "Behavioral", "question": "Describe a situation where you had to quickly learn a new technology to build a project. How did you go about it?"},
+        {"category": "hr", "subcategory": "Behavioral", "question": "Tell me about a project that failed or didn't go as planned. What went wrong, and what did you learn from that experience?"}
+    ]
+    
+    pm_questions = [
+        {"category": "hr", "subcategory": "Product", "question": "How would you measure the success of a new feature launched on an e-commerce platform? What metrics would you track?"},
+        {"category": "hr", "subcategory": "Product", "question": "Imagine our app's user retention dropped by 10% this month. How would you go about diagnosing the root cause?"}
+    ]
+
+    pool = []
+    if interview_type == "technical":
+        pool = tech_questions
+    elif interview_type in ("behavioral", "hr"):
+        pool = behavioral_questions
+    else:
+        pool = tech_questions + behavioral_questions
+        if "product" in target_role.lower():
+            pool += pm_questions
+
+    random.shuffle(pool)
+    asked_questions = {h.get("question", "").lower() for h in history if isinstance(h, dict)}
+    for q in pool:
+        if q["question"].lower() not in asked_questions:
+            return q
+            
+    return {
+        "question": f"Based on your background in {skills[0] if skills else 'software development'}, what are the key engineering practices you follow to build scalable systems?",
+        "category": "technical",
+        "subcategory": "Software Engineering"
+    }
+
+
+async def generate_overall_report(
+    target_role: str,
+    interview_type: str,
+    difficulty: str,
+    questions: list,
+    answers: list
+) -> dict:
+    if not settings.gemini_api_key and not settings.openai_api_key:
+        return generate_overall_report_heuristically(target_role, interview_type, difficulty, questions, answers)
+
+    interview_transcript = ""
+    for idx, (q, a) in enumerate(zip(questions, answers)):
+        q_text = q.get("question", "") if isinstance(q, dict) else q
+        a_text = a.get("answer", "") if isinstance(a, dict) else ""
+        score = 0
+        feedback_text = ""
+        if isinstance(a, dict) and "feedback" in a:
+            fb = a["feedback"]
+            score = fb.get("score", 0) if isinstance(fb, dict) else 0
+            feedback_text = fb.get("feedback", "") if isinstance(fb, dict) else ""
+        elif isinstance(a, dict) and "score" in a:
+            score = a.get("score", 0)
+            feedback_text = a.get("feedback", "")
+            
+        interview_transcript += f"\nQuestion {idx + 1}: {q_text}\nCandidate Answer: {a_text}\nScore: {score}/10\nFeedback: {feedback_text}\n"
+
+    prompt = f"""You are an expert AI Interview Coach. Generate a comprehensive performance report for the candidate based on the interview transcript.
+
+Interview Context:
+- Target Role: {target_role}
+- Interview Type: {interview_type}
+- Difficulty: {difficulty}
+
+Interview Transcript:
+{interview_transcript}
+
+Evaluate the candidate across these dimensions:
+1. Overall Score (0-100)
+2. Technical Knowledge (0-100)
+3. Problem Solving (0-100)
+4. Communication (0-100)
+5. Confidence (0-100)
+6. Project Knowledge (0-100)
+7. Answer Quality (0-100)
+
+Return ONLY a valid JSON response with the following format:
+{{
+  "overall_score": 81,
+  "categories": {{
+    "technical_knowledge": 78,
+    "problem_solving": 82,
+    "communication": 75,
+    "confidence": 80,
+    "project_knowledge": 88,
+    "answer_quality": 81
+  }},
+  "strengths": [
+    "strength statement 1",
+    "strength statement 2",
+    "strength statement 3"
+  ],
+  "improvements": [
+    "improvement area 1",
+    "improvement area 2",
+    "improvement area 3"
+  ],
+  "practice": [
+    "practice recommendation 1",
+    "practice recommendation 2",
+    "practice recommendation 3"
+  ]
+}}"""
+
+    try:
+        response = await generate_ai_content(prompt, "You are a professional, constructive AI career coach.")
+        return parse_json_response(response)
+    except Exception as e:
+        print(f"Overall report generation failed: {e}. Using fallback.")
+        return generate_overall_report_heuristically(target_role, interview_type, difficulty, questions, answers)
+
+
+def generate_overall_report_heuristically(
+    target_role: str,
+    interview_type: str,
+    difficulty: str,
+    questions: list,
+    answers: list
+) -> dict:
+    scores = []
+    for a in answers:
+        if isinstance(a, dict) and "feedback" in a:
+            fb = a["feedback"]
+            if isinstance(fb, dict) and "score" in fb:
+                scores.append(fb["score"])
+            elif isinstance(fb, dict) and "score" in a:
+                scores.append(a["score"])
+        elif isinstance(a, dict) and "score" in a:
+            scores.append(a["score"])
+            
+    avg_score_10 = sum(scores) / len(scores) if scores else 7.5
+    overall_score = int(avg_score_10 * 10)
+    
+    tech_score = min(max(overall_score + 3, 50), 98)
+    prob_score = min(max(overall_score + 1, 50), 98)
+    comm_score = min(max(overall_score - 4, 50), 98)
+    conf_score = min(max(overall_score - 2, 50), 98)
+    proj_score = min(max(overall_score + 5, 50), 98)
+    ans_score = min(max(overall_score, 50), 98)
+
+    strengths = [
+        "Good understanding of fundamental technical concepts",
+        "Clear explanation of project goals and implementation",
+        "Methodical approach to problem-solving questions"
+    ]
+    
+    improvements = [
+        "Elaborate more on design tradeoffs rather than just the final solution",
+        "Try to structure behavioral answers using the STAR method",
+        "Provide more database normalization and indexing detail"
+    ]
+    
+    practice = [
+        "Practice standard Data Structures and Algorithms (DSA) questions",
+        "Practice Database Management Systems (DBMS) queries and concepts",
+        "Practice mock Behavioral interviews to build structural responses"
+    ]
+
+    return {
+        "overall_score": overall_score,
+        "categories": {
+            "technical_knowledge": tech_score,
+            "problem_solving": prob_score,
+            "communication": comm_score,
+            "confidence": conf_score,
+            "project_knowledge": proj_score,
+            "answer_quality": ans_score
+        },
+        "strengths": strengths,
+        "improvements": improvements,
+        "practice": practice
+    }
 
 
 async def predict_skill_gaps(profile_data: dict, resume_text: str = "") -> dict:

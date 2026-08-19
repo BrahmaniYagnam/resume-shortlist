@@ -173,7 +173,7 @@ export default function VoiceCoachPage() {
               {speaking ? (
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
                   <p className="font-medium text-blue-600 animate-pulse">Speaking...</p>
-                  <Button size="xs" variant="outline" onClick={() => {
+                  <Button size="sm" variant="secondary" onClick={() => {
                     if (typeof window !== "undefined" && window.speechSynthesis) {
                       window.speechSynthesis.cancel();
                       setSpeaking(false);
