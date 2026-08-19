@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { ScoreRing, SkillRadarChart } from "@/components/charts/Charts";
+import { AIAvatar } from "@/components/interview/AIAvatar";
 import {
   Sparkles, Mic, MicOff, Video, VideoOff, Volume2, VolumeX,
   Play, Pause, LogOut, FileText, Upload, History, Clock,
@@ -68,6 +69,7 @@ export default function InterviewPage() {
   const [listening, setListening] = useState(false);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [avatarMode, setAvatarMode] = useState<"hologram" | "photo">("hologram");
 
   // Webcam Streams
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -494,7 +496,7 @@ export default function InterviewPage() {
               className="grid gap-8 lg:grid-cols-3"
             >
               {/* Configuration Panel */}
-              <div className="space-y-6 lg:col-span-2">
+              <div className="space-y-6 lg:col-span-3">
                 <Card
                   title="Configure Mock Session"
                   description="Choose your parameters to build a customized, dynamic recruiter simulator."
@@ -605,18 +607,7 @@ export default function InterviewPage() {
                 </Card>
               </div>
 
-              {/* Sidebar Info Card */}
-              <div className="space-y-6">
-                <Card className="bg-gradient-to-br from-blue-600/5 to-purple-600/5 border-blue-500/10">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    <Sparkles className="h-5 w-5" />
-                  </div>
-                  <h4 className="mt-4 text-base font-bold text-gray-900 dark:text-white">AI-Driven Simulator</h4>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed dark:text-gray-400">
-                    Unlike standard linear assessments, Antigravity AI listens to your responses dynamically. It analyzes your design choices, raises question complexities for great answers, simplifies them when you struggle, and asks logical follow-ups.
-                  </p>
-                </Card>
-              </div>
+
 
               {/* Previous History logs */}
               <div className="lg:col-span-3">
@@ -763,31 +754,34 @@ export default function InterviewPage() {
                   <div className="relative aspect-video rounded-3xl bg-gray-950 overflow-hidden border border-gray-850 shadow-2xl flex flex-col items-center justify-center p-6 text-center">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08)_0%,transparent_70%)]" />
 
+                    {/* Avatar Mode Toggle (Hologram vs Photo) */}
+                    <div className="absolute top-4 right-4 z-20 flex bg-gray-900/60 backdrop-blur border border-gray-800 p-0.5 rounded-lg">
+                      <button
+                        onClick={() => setAvatarMode("hologram")}
+                        className={`text-[10px] font-semibold px-2 py-1 rounded transition ${
+                          avatarMode === "hologram"
+                            ? "bg-blue-600 text-white shadow"
+                            : "text-gray-400 hover:text-gray-200"
+                        }`}
+                      >
+                        Hologram
+                      </button>
+                      <button
+                        onClick={() => setAvatarMode("photo")}
+                        className={`text-[10px] font-semibold px-2 py-1 rounded transition ${
+                          avatarMode === "photo"
+                            ? "bg-blue-600 text-white shadow"
+                            : "text-gray-400 hover:text-gray-200"
+                        }`}
+                      >
+                        Photo
+                      </button>
+                    </div>
+
                     {/* Glowing AI Avatar & Waveform Visualizer */}
                     <div className="relative flex flex-col items-center justify-center space-y-4">
                       {/* The Avatar Container */}
-                      <div className="relative h-44 w-44 rounded-full border-2 border-blue-500/20 bg-gray-900 overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.25)]">
-                        {/* Avatar Image */}
-                        <img
-                          src="/ai_interviewer_avatar.jpg"
-                          alt="AI Recruiter"
-                          className="h-full w-full object-cover transition duration-300"
-                          style={{ filter: aiSpeaking ? "brightness(1.08) contrast(1.03)" : "brightness(0.92)" }}
-                        />
-
-                        {/* Glowing Overlay when speaking */}
-                        <AnimatePresence>
-                          {aiSpeaking && (
-                            <motion.div
-                              className="absolute inset-0 border-4 border-blue-500/80 rounded-full"
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              animate={{ opacity: [0.3, 0.8, 0.3], scale: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                            />
-                          )}
-                        </AnimatePresence>
-                      </div>
+                      <AIAvatar isSpeaking={aiSpeaking} avatarMode={avatarMode} />
 
                       {/* Waveform Visualizer below the avatar */}
                       <div className="flex items-center justify-center gap-1.5 h-8 w-44">

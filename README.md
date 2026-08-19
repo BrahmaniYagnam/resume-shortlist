@@ -21,7 +21,7 @@ You can deploy the project to the cloud instantly using the following one-click 
 | **AI Resume Analyzer** | Upload PDF/DOC resumes, get ATS scores, skill analysis, improvements |
 | **AI Resume Builder** | Generate optimized resumes for SWE, Data Analyst, PM roles |
 | **Job Description Matcher** | Compare resume vs job posting with match percentage |
-| **AI Interview Prep** | Personalized questions with AI answer evaluation |
+| **AI Interview Prep** | Personalized questions, evaluation, and a **live speaking recruiter avatar** (Holographic SVG / Photo mode) |
 | **Voice Career Coach** | Speech-to-text input, AI conversation, text-to-speech responses |
 | **GitHub Profile Analyzer** | Analyze repos, languages, contributions, quality |
 | **Skill Gap Prediction** | Job readiness scores with weekly/monthly learning roadmaps |
@@ -33,7 +33,7 @@ You can deploy the project to the cloud instantly using the following one-click 
 - **Frontend:** Next.js 14, React, Tailwind CSS, Recharts, Framer Motion
 - **Backend:** Python FastAPI, SQLAlchemy, JWT Auth
 - **Database:** PostgreSQL
-- **AI:** Google Gemini API, LangChain, ChromaDB (RAG)
+- **AI:** Google Gemini API (utilizes `gemini-3.6-flash`), LangChain, ChromaDB (RAG)
 - **Voice:** Web Speech API (STT/TTS)
 
 ## Quick Start
